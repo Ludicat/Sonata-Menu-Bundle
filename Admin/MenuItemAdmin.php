@@ -65,6 +65,16 @@ class MenuItemAdmin extends AbstractAdmin
             }
         }
 
+        /** @var EntityManagerInterface $m */
+        $m = $this->getConfigurationPool()->getContainer()->get('doctrine.orm.entity_manager');
+        $menuItemRepository = $m->getRepository(MenuItemInterface::class);
+
+        $query = $menuItemRepository->createQueryBuilder('m')
+            ->andWhere('m.menu = :menu')
+            ->setParameter('menu', $menu->getId())
+            ->getQuery()
+        ;
+
         $formMapper
             ->with('config.label_menu_item', array('class' => 'col-md-6', 'translation_domain' => 'ProdigiousSonataMenuBundle'))
                 ->add('name', TextType::class,
@@ -81,6 +91,7 @@ class MenuItemAdmin extends AbstractAdmin
                         'required' => false,
                         'btn_add' => false,
                         'placeholder' => 'config.label_select',
+                        'query' => $query,
                     ),
                     array(
                         'translation_domain' => 'ProdigiousSonataMenuBundle'
